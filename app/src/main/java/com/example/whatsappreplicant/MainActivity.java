@@ -1,5 +1,6 @@
 package com.example.whatsappreplicant;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -11,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
@@ -34,20 +36,37 @@ public class MainActivity extends AppCompatActivity {
 
     private WebView whatsappWeb;
     private static final String DESKTOP_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36";
-    private static final String jsFunc ="javaScript:{var list = [\"roudy\",\"Mom\",\"Dad\"]; \n" +
+    private static final String jsFunc ="javaScript:{var list = [\"فرقة مار جرجس\"]; \n" +
             "var listsElements = [];\n" +
-            "var parent =document.evaluate('/html/body/div/div[1]/div[1]/div[3]/div/div/div[1]/div/div', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue ;\n" +
+            "var parentOfParent = document.evaluate('/html/body/div/div[1]/div[1]/div[3]/div/div[2]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;\n" +
+            "var parent = parentOfParent.children[0].children[0].children[0];\n" +
             "var len = parent.children.length;\n" +
             "for (var i = 0; i < len; i++) {\n" +
             "  var tableChild = parent.children[i];\n" +
             "  if(tableChild != null && tableChild != undefined && !list.includes(tableChild.children[0].children[0].children[1].children[0].children[0].children[0].title)){\n" +
-            "\n" +
             "        tableChild.style.width = \"0px\";\n" +
             "        tableChild.style.height = \"0px\";\n" +
-            "        tableChild.transform = \"translateY(0px)\";\n" +
+            "        tableChild.transform = \"translateY(-\"+(72*i)+\"px)\";\n" +
+            "try{\n" +
+            "        tableChild.children[0].children[0].children[0].children[0].children[0].children[1].style.width = \"0px\";\n" +
+            "        tableChild.children[0].children[0].children[0].children[0].children[0].children[1].style.height = \"0px\";\n" +
+            "        tableChild.children[0].children[0].children[0].children[0].children[0].children[1].transform = \"translateY(-\"+(72*i)+\"px)\";\n" +
+            "        tableChild.children[0].children[0].children[0].children[0].children[0].children[0].remove();\n" +
+            "}catch(Exc){}\n" +
+            "        tableChild.children[0].children[0].children[0].style.width = \"0px\";\n" +
+            "        tableChild.children[0].children[0].children[0].style.height = \"0px\";\n" +
+            "        tableChild.children[0].children[0].children[0].transform = \"translateY(-\"+(72*i)+\"px)\";\n" +
+            "\n" +
+            "        tableChild.children[0].children[0].children[1].style.width = \"0px\";\n" +
+            "        tableChild.children[0].children[0].children[1].style.height = \"0px\";\n" +
+            "        tableChild.children[0].children[0].children[1].transform = \"translateY(-\"+(72*i)+\"px)\";\n" +
+            "\n" +
+            "        tableChild.children[0].children[0].children[1].children[1].children[1].remove();\n" +
+            "\n" +
             "        tableChild.children[0].children[0].children[0].children[0].style.width = \"0px\";\n" +
             "        tableChild.children[0].children[0].children[0].children[0].style.height = \"0px\";\n" +
-            "        tableChild.children[0].children[0].children[0].children[0].transform = \"translateY(0px)\";\n" +
+            "        tableChild.children[0].children[0].children[0].children[0].transform = \"translateY(-\"+(72*i)+\"px)\";\n" +
+            "tableChild.replaceWith(tableChild.cloneNode(true));\n" +
             "  }\n" +
             "  else if(tableChild != null && tableChild != undefined){\n" +
             "    listsElements.push(tableChild);\n" +
@@ -55,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
             "}\n" +
             "console.log(listsElements);\n" +
             "len = listsElements.length;\n" +
+            "listsElements[0].children[0].children[0].children[1].click();\n" +
             "for(var i = 0; i < len; i++)\n" +
             "    listsElements[i].style.transform = \"translateY(\"+(i*72)+\"px)\";\n" +
             " try{\n" +
@@ -67,17 +87,31 @@ public class MainActivity extends AppCompatActivity {
             "\n" +
             " document.evaluate('/html/body/div/div[1]/div[1]/div[3]/div/div[1]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.remove();}catch(exception_var){}}";
 
-    private static final int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 101;
-    private static PermissionRequest myRequest;
-
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        whatsappWeb = findViewById(R.id.wpwebView);
+        if(savedInstanceState == null) {
+            whatsappWeb = findViewById(R.id.wpwebView);
 
+            configureWebView();
+
+            whatsappWeb.loadUrl("https://web.whatsapp.com/");
+
+        }
+
+        Window window = getWindow();
+
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+        window.setStatusBarColor(ContextCompat.getColor(this, R.color.my_statusbar_color));
+    }
+
+    private void configureWebView(){
         whatsappWeb.setWebViewClient(new mWebViewClient());
 
         WebSettings settings = whatsappWeb.getSettings();
@@ -96,27 +130,28 @@ public class MainActivity extends AppCompatActivity {
         whatsappWeb.setVerticalScrollBarEnabled(true);
 
         whatsappWeb.setPadding(0, 0, 0, 0);
-//        whatsappWeb.setInitialScale(getScale());
 
-        whatsappWeb.setWebChromeClient(new WebChromeClient(){
+        whatsappWeb.setWebChromeClient(new WebChromeClient() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onPermissionRequest(final PermissionRequest request) {
                 request.grant(request.getResources());
             }
         });
+    }
 
-        whatsappWeb.loadUrl("https://web.whatsapp.com/");
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        whatsappWeb.saveState(outState);
+    }
 
-        Window window = getWindow();
-
-// clear FLAG_TRANSLUCENT_STATUS flag:
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-
-// add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-
-// finally change the color
-        window.setStatusBarColor(ContextCompat.getColor(this,R.color.my_statusbar_color));
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        whatsappWeb = findViewById(R.id.wpwebView);
+        configureWebView();
+        whatsappWeb.restoreState(savedInstanceState);
     }
 
     private class mWebViewClient extends WebViewClient {
