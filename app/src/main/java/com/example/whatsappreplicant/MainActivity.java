@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     private WebView whatsappWeb;
     private static final String DESKTOP_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36";
-    private static final String jsFunc ="javaScript:{var list = [\"فرقة مار جرجس\"]; \n" +
+    private static final String jsFunc ="javaScript:{var list = [\"فرقة مار جرجس\",\"roland\",\"مدلان\"]; \n" +
             "var listsElements = [];\n" +
             "var parentOfParent = document.evaluate('/html/body/div/div[1]/div[1]/div[3]/div/div[2]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;\n" +
             "var parent = parentOfParent.children[0].children[0].children[0];\n" +
